@@ -17,3 +17,12 @@ Requirements
 * PHP 5.3
 * curl (php-curl)
 
+Usage
+-----
+
+Just include the needed php files and initialize the sugarcrm connection object.
+
+    <?php
+    require_once('connection.php');
+    $sugar = new \SugarCRM\Connection("http://crm.example.com", "user", "password");
+    $p = $sugar->load_bean('Contacts', '6efc52c4-3c6a-8787-3284-4fabee55b834');
