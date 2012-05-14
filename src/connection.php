@@ -45,6 +45,27 @@ class connection {
   }
 
   /**
+   * Converts a given bean object from the api into a simple class
+   * that is better to handle.
+   *
+   * @param \stdClass $bean The bean that should be converted.
+   * @throws \Exception
+   * @return \stdClass
+   */
+  private function _convert_to_simple_class(&$bean) {
+    if (empty($bean)) {
+      throw new \Exception("Empty bean given!");
+    }
+    $new_bean = new \stdClass();
+    $new_bean->id = $bean->id;
+    $new_bean->module_name = $bean->module_name;
+    foreach ($bean->name_value_list as $key => $value) {
+      $new_bean->$key = $value->value;
+    }
+    return $new_bean;
+  }
+
+  /**
    * Loads a bean of the given type and the given id from the database.
    *
    * @param string $type The type of the bean (Contacts, Meetings, ...).
@@ -62,7 +83,7 @@ class connection {
     $response = $this->query('get_entry', $data);
     $bean = $response->entry_list[0];
     if ((int)$bean->name_value_list->deleted->value === 0) {
-      return $bean;
+      return $this->_convert_to_simple_class($bean);
     }
     return FALSE;
   }
@@ -88,7 +109,13 @@ class connection {
       } // foreach
     }
     $response = $this->query('get_entry_list', $data);
-    return $response->entry_list;
+    $results = array();
+    if (!empty($response->entry_list)) {
+      foreach($response->entry_list as $entry) {
+        $results[] = $this->_convert_to_simple_class($entry);
+      } // foreach
+    }
+    return $results;
   }
 
   /**
@@ -106,7 +133,13 @@ class connection {
       'ids' => $ids,
     );
     $response = $this->query('get_entries', $data);
-    return $response->entry_list;
+    $results = array();
+    if (!empty($response->entry_list)) {
+      foreach($response->entry_list as $entry) {
+        $results[] = $this->_convert_to_simple_class($entry);
+      } // foreach
+    }
+    return $results;
   }
 
   /**
