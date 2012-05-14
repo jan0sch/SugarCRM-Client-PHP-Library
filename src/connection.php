@@ -45,6 +45,26 @@ class connection {
   }
 
   /**
+   * Build the name value list for the sugar api.
+   *
+   * @param \stdClass $bean The simple class the represents the bean.
+   * @return array A name value list as expected by the sugarcrm api.
+   */
+  private function _build_name_value_list($bean) {
+    $name_value_list = array();
+    $entry = NULL;
+    foreach ($bean as $key => $value) {
+      if ($key != 'module_name') {
+        $entry = new \stdClass();
+        $entry->name = $key;
+        $entry->value = $value;
+        $name_value_list["$key"] = $entry;
+      }
+    } // foreach
+    return $name_value_list;
+  }
+
+  /**
    * Converts a given bean object from the api into a simple class
    * that is better to handle.
    *
@@ -145,16 +165,22 @@ class connection {
   /**
    * Saves the given bean to the database.
    *
-   * @param string $type The type of the bean (Contacts, Meetings, ...).
-   * @param array $name_value_list An array holding the attributes of the bean (name value list).
+   * @param \stdClass $bean The simple class the represents the bean.
+   * @throws \Exception
    * @return bool Returns <code>TRUE</code> on success and <code>FALSE</code> on failure.
    */
-  public function save_bean($type, $name_value_list) {
-    $type = trim((string)$type);
+  public function save_bean($bean) {
+    if (empty($bean->id)) {
+      throw new \Exception("Bean has no ID!");
+    }
+    if (empty($bean->module_name)) {
+      throw new \Exception("Bean type (module_name) is not set!");
+    }
+    $type = trim((string)$bean->module_name);
     $data = array(
       'session' => $this->session,
       'modulename' => $type,
-      'name_value_list' => $name_value_list,
+      'name_value_list' => $this->_build_name_value_list($bean),
     );
     $response = $this->query('set_entry', $data);
     if (!empty($response->id)) {
