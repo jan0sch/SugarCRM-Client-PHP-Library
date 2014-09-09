@@ -6,6 +6,8 @@ If you want to take over as maintainer, just drop me a line.
 SugarCRM Client PHP Library
 ===========================
 
+[![BSD License](http://img.shields.io/badge/license-bsd-green.svg)](http://opensource.org/licenses/BSD-3-Clause)
+
 This library intends to provide a simpler interface for the rest api
 of [sugarcrm](http://www.sugarcrm.com).
 
